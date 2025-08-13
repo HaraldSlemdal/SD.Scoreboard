@@ -5,6 +5,8 @@ public partial class MainForm : Form
     public MainForm()
     {
         InitializeComponent();
+        nudActiveMinutes.Value = 3;
+        nudPauseMinutes.Value = 2;
     }
     
     private void btnStart_Click(object sender, EventArgs e)

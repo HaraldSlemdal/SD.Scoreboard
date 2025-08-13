@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Speech.Synthesis;
 using System.Windows.Forms;
@@ -28,12 +28,19 @@ public partial class TimerForm : Form
 
         private SpeechSynthesizer synth = new SpeechSynthesizer();
 
+
         public TimerForm(int activeSeconds, int pauseSeconds)
         {
             InitializeComponent();
             this.activeSeconds = activeSeconds;
             this.pauseSeconds = pauseSeconds;
 
+            this.WindowState = FormWindowState.Maximized;
+            this.FormBorderStyle = FormBorderStyle.None;
+            synth.Rate = 2;
+
+            ScaleControls();
+            
             StartActivePeriod();
 
             tickTimer = new Timer();
@@ -61,6 +68,9 @@ public partial class TimerForm : Form
             lblStatus.Text = "Aktiv periode";
             LogPeriodStart();
             UpdateTimeLabel();
+            homeScore = 0;
+            awayScore = 0;
+            UpdateScores();
         }
 
         private void StartPausePeriod()
@@ -84,7 +94,12 @@ public partial class TimerForm : Form
                     synth.SpeakAsync("Half way there");
                 }
 
-                if (remainingSeconds == 10)
+                if (!isActivePeriod && remainingSeconds == 20)
+                {
+                    synth.SpeakAsync("20 seconds. Get ready");
+                }
+                
+                if (isActivePeriod && remainingSeconds == 10)
                 {
                     synth.SpeakAsync("10 seconds");
                 }
@@ -142,6 +157,10 @@ public partial class TimerForm : Form
                 {
                     TogglePause();
                 }
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                this.Close();
             }
         }
 
@@ -220,5 +239,20 @@ public partial class TimerForm : Form
                 File.AppendAllText(file, line + Environment.NewLine);
             }
             catch { /* ignore logging errors */ }
+        }
+        
+        private void ScaleControls()
+        {
+            float scaleFactor = Math.Min((float)Screen.PrimaryScreen.Bounds.Width / 688f,
+                (float)Screen.PrimaryScreen.Bounds.Height / 240f);
+
+            foreach (Control c in this.Controls)
+            {
+                c.Font = new System.Drawing.Font(c.Font.FontFamily, c.Font.Size * scaleFactor, c.Font.Style);
+                c.Width = (int)(c.Width * scaleFactor);
+                c.Height = (int)(c.Height * scaleFactor);
+                c.Left = (int)(c.Left * scaleFactor);
+                c.Top = (int)(c.Top * scaleFactor);
+            }
         }
     }

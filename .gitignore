@@ -1,0 +1,53 @@
+# .gitignore for SD.Scoreboard (Windows Forms project)
+
+# Build output
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio cache/options
+.vs/
+
+# Build results
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Logs
+Logs/
+*.log
+
+# Temporary files
+[Tt]emp/
+*.tmp
+*.temp
+~$*
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+
+# Rider/JetBrains
+.idea/
+*.iml
+
+# Test results
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
