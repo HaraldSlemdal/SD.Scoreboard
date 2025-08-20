@@ -4,6 +4,8 @@ using System.Speech.Synthesis;
 using System.Windows.Forms;
 using System.Media;
 using Timer = System.Windows.Forms.Timer;
+using NAudio.Wave;
+
 
 namespace SD.Scoreboard;
 
@@ -17,6 +19,10 @@ public partial class TimerForm : Form
 
         private int homeScore = 0;
         private int awayScore = 0;
+        
+        private int homeWin = 0;
+        private int awayWin = 0;
+        private int draw = 0;
 
         private bool yDown = false;
         private bool rDown = false;
@@ -28,6 +34,8 @@ public partial class TimerForm : Form
 
         private SpeechSynthesizer synth = new SpeechSynthesizer();
 
+        private readonly string beepSoundPath;
+        private readonly string whistleSoundPath;
 
         public TimerForm(int activeSeconds, int pauseSeconds)
         {
@@ -38,10 +46,14 @@ public partial class TimerForm : Form
             this.WindowState = FormWindowState.Maximized;
             this.FormBorderStyle = FormBorderStyle.None;
             synth.Rate = 2;
+            
+            //beepSoundPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sounds", "beep.wav");
+            beepSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\beep-329314.mp3";
+            whistleSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\calling-whistle-41861.mp3";
 
             ScaleControls();
             
-            StartActivePeriod();
+            _ = StartActivePeriod();
 
             tickTimer = new Timer();
             tickTimer.Interval = 1000;
@@ -61,12 +73,12 @@ public partial class TimerForm : Form
             this.KeyUp += TimerForm_KeyUp;
         }
 
-        private void StartActivePeriod()
+        private async Task StartActivePeriod()
         {
             isActivePeriod = true;
             remainingSeconds = activeSeconds;
             lblStatus.Text = "Aktiv periode";
-            LogPeriodStart();
+            _ = LogPeriodStart();
             UpdateTimeLabel();
             homeScore = 0;
             awayScore = 0;
@@ -104,19 +116,26 @@ public partial class TimerForm : Form
                     synth.SpeakAsync("10 seconds");
                 }
 
-                if (remainingSeconds <= 5 && remainingSeconds > 0)
+                if (remainingSeconds is <= 5 and > 0)
                 {
-                    SystemSounds.Beep.Play();
+                    PlaySound(beepSoundPath);
                 }
 
                 if (remainingSeconds == 0)
                 {
-                    SystemSounds.Hand.Play(); // whistle-like
+                    PlaySound(whistleSoundPath);
+                    
                     // switch state
                     if (isActivePeriod)
+                    {
                         StartPausePeriod();
+                        synth.SpeakAsync("Rest");
+                    }
                     else
-                        StartActivePeriod();
+                    {
+                        UpdateTotal();
+                        _ = StartActivePeriod();
+                    }
                 }
             }
         }
@@ -132,6 +151,24 @@ public partial class TimerForm : Form
         {
             lblHomeScore.Text = homeScore.ToString();
             lblAwayScore.Text = awayScore.ToString();
+        }
+
+        private void UpdateTotal()
+        {
+            if (homeScore > awayScore)
+            {
+                homeWin++;
+            }
+            else if (awayScore > homeScore)
+            {
+                awayWin++;
+            }
+            else
+            {
+                draw++;
+            }
+            
+            lblTotal.Text = $"{homeWin} - {draw} - {awayWin}";
         }
 
         private void TimerForm_KeyDown(object sender, KeyEventArgs e)
@@ -228,7 +265,7 @@ public partial class TimerForm : Form
             }
         }
 
-        private void LogPeriodStart()
+        private async Task LogPeriodStart()
         {
             try
             {
@@ -236,7 +273,7 @@ public partial class TimerForm : Form
                 Directory.CreateDirectory(dir);
                 string file = Path.Combine(dir, DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
                 string line = DateTime.Now.ToString("HH:mm:ss") + " - Ny aktiv periode startet - Score: Team Yellow " + homeScore + " - Team Red " + awayScore;
-                File.AppendAllText(file, line + Environment.NewLine);
+                await File.AppendAllTextAsync(file, line + Environment.NewLine);
             }
             catch { /* ignore logging errors */ }
         }
@@ -253,6 +290,28 @@ public partial class TimerForm : Form
                 c.Height = (int)(c.Height * scaleFactor);
                 c.Left = (int)(c.Left * scaleFactor);
                 c.Top = (int)(c.Top * scaleFactor);
+            }
+        }
+
+        private void PlaySound(string path)
+        {
+            if (File.Exists(path))
+            {
+                try
+                {
+                    using var audioFile = new AudioFileReader(path);
+                    using var outputDevice = new WaveOutEvent();
+                    outputDevice.Init(audioFile);
+                    outputDevice.Play();
+                        
+                    while (outputDevice.PlaybackState == PlaybackState.Playing)
+                    {
+                        Application.DoEvents();
+                    }
+                }
+                catch
+                {
+                }
             }
         }
     }
