@@ -3,6 +3,7 @@ using System.IO;
 using System.Speech.Synthesis;
 using System.Windows.Forms;
 using System.Media;
+using System.Text.RegularExpressions;
 using Timer = System.Windows.Forms.Timer;
 using NAudio.Wave;
 
@@ -36,6 +37,30 @@ public partial class TimerForm : Form
 
         private readonly string beepSoundPath;
         private readonly string whistleSoundPath;
+        private readonly string getReadySoundPath;
+        private readonly string wellDoneSoundPath;
+        private readonly string halfwaySoundPath;
+        private readonly string tenSecondsSoundPath;
+        
+        // Preloaded audio
+        private AudioFileReader beepReader;
+        private WaveOutEvent beepPlayer;
+
+
+        private AudioFileReader whistleReader;
+        private WaveOutEvent whistlePlayer;
+        
+        private AudioFileReader getReadyReader;
+        private WaveOutEvent getReadyPlayer;
+        
+        private AudioFileReader wellDoneReader;
+        private WaveOutEvent wellDonePlayer;
+        
+        private AudioFileReader halfwayReader;
+        private WaveOutEvent halfwayPlayer;
+        
+        private AudioFileReader tenSecondsReader;
+        private WaveOutEvent tenSecondsPlayer;
 
         public TimerForm(int activeSeconds, int pauseSeconds)
         {
@@ -47,12 +72,25 @@ public partial class TimerForm : Form
             this.FormBorderStyle = FormBorderStyle.None;
             synth.Rate = 2;
             
+            //Lyder fra https://elevenlabs.io/
             //beepSoundPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sounds", "beep.wav");
             beepSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\beep-329314.mp3";
             whistleSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\calling-whistle-41861.mp3";
-
-            ScaleControls();
+            getReadySoundPath = @"C:\Users\hs.SKOGDATA\Downloads\ElevenLabs_Text_to_Speech_audio.mp3";
+            //wellDoneSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\well_done.mp3";
+            wellDoneSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\well_done2.mp3";
+            //halfwaySoundPath = @"C:\Users\hs.SKOGDATA\Downloads\halfway.mp3";
+            halfwaySoundPath = @"C:\Users\hs.SKOGDATA\Downloads\Halfway_there.mp3";
+            tenSecondsSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\10seconds.mp3";
             
+            
+
+            _ = ReadTodaysLog();
+            PreloadSounds();
+            //ScaleControls();
+
+            //remainingSeconds = 20;
+            //StartPausePeriod(false);
             _ = StartActivePeriod();
 
             tickTimer = new Timer();
@@ -85,12 +123,120 @@ public partial class TimerForm : Form
             UpdateScores();
         }
 
-        private void StartPausePeriod()
+        private void StartPausePeriod(bool setRemainingSeconds = true)
         {
             isActivePeriod = false;
-            remainingSeconds = pauseSeconds;
+            if (setRemainingSeconds)
+            {
+                remainingSeconds = pauseSeconds;
+            }
+            
             lblStatus.Text = "Pause";
             UpdateTimeLabel();
+        }
+        
+        private void PreloadSounds()
+        {
+            try
+            {
+                if (File.Exists(beepSoundPath))
+                {
+                    beepReader = new AudioFileReader(beepSoundPath);
+                    beepPlayer = new WaveOutEvent();
+                    beepPlayer.Init(beepReader);
+                }
+
+
+                if (File.Exists(whistleSoundPath))
+                {
+                    whistleReader = new AudioFileReader(whistleSoundPath);
+                    whistlePlayer = new WaveOutEvent();
+                    whistlePlayer.Init(whistleReader);
+                }
+                
+                if (File.Exists(getReadySoundPath))
+                {
+                    getReadyReader = new AudioFileReader(getReadySoundPath);
+                    getReadyPlayer = new WaveOutEvent();
+                    getReadyPlayer.Init(getReadyReader);
+                }
+                
+                if (File.Exists(wellDoneSoundPath))
+                {
+                    wellDoneReader = new AudioFileReader(wellDoneSoundPath);
+                    wellDonePlayer = new WaveOutEvent();
+                    wellDonePlayer.Init(wellDoneReader);
+                }
+                
+                if (File.Exists(halfwaySoundPath))
+                {
+                    halfwayReader = new AudioFileReader(halfwaySoundPath);
+                    halfwayPlayer = new WaveOutEvent();
+                    halfwayPlayer.Init(halfwayReader);
+                }
+                
+                if (File.Exists(tenSecondsSoundPath))
+                {
+                    tenSecondsReader = new AudioFileReader(tenSecondsSoundPath);
+                    tenSecondsPlayer = new WaveOutEvent();
+                    tenSecondsPlayer.Init(tenSecondsReader);
+                }
+            }
+            catch { }
+        }
+
+
+        private void PlayBeep()
+        {
+            if (beepPlayer != null && beepReader != null)
+            {
+                beepReader.Position = 0;
+                beepPlayer.Play();
+            }
+        }
+        private void PlayWhistle()
+        {
+            if (whistlePlayer != null && whistleReader != null)
+            {
+                whistleReader.Position = 0;
+                whistlePlayer.Play();
+            }
+        }
+        
+        private void PlayGetReady()
+        {
+            if (getReadyPlayer != null && getReadyReader != null)
+            {
+                getReadyReader.Position = 0;
+                getReadyPlayer.Play();
+            }
+        }
+        
+        private void PlayWellDone()
+        {
+            if (wellDonePlayer != null && wellDoneReader != null)
+            {
+                wellDoneReader.Position = 0;
+                wellDonePlayer.Play();
+            }
+        }
+        
+        private void PlayHalfway()
+        {
+            if (halfwayPlayer != null && halfwayReader != null)
+            {
+                halfwayReader.Position = 0;
+                halfwayPlayer.Play();
+            }
+        }
+        
+        private void PlayTenSeconds()
+        {
+            if (tenSecondsPlayer != null && tenSecondsReader != null)
+            {
+                tenSecondsReader.Position = 0;
+                tenSecondsPlayer.Play();
+            }
         }
 
         private void TickTimer_Tick(object sender, EventArgs e)
@@ -103,36 +249,35 @@ public partial class TimerForm : Form
                 // Halfway announcement
                 if (isActivePeriod && remainingSeconds == activeSeconds / 2)
                 {
-                    synth.SpeakAsync("Half way there");
+                    PlayHalfway();
                 }
 
                 if (!isActivePeriod && remainingSeconds == 20)
                 {
-                    synth.SpeakAsync("20 seconds. Get ready");
+                    PlayGetReady();
                 }
                 
                 if (isActivePeriod && remainingSeconds == 10)
                 {
-                    synth.SpeakAsync("10 seconds");
+                    PlayTenSeconds();
                 }
 
                 if (remainingSeconds is <= 5 and > 0)
                 {
-                    PlaySound(beepSoundPath);
+                    PlayBeep();
                 }
 
                 if (remainingSeconds == 0)
                 {
-                    PlaySound(whistleSoundPath);
-                    
                     // switch state
                     if (isActivePeriod)
                     {
                         StartPausePeriod();
-                        synth.SpeakAsync("Rest");
+                        PlayWellDone();
                     }
                     else
                     {
+                        PlayWhistle();
                         UpdateTotal();
                         _ = StartActivePeriod();
                     }
@@ -272,8 +417,50 @@ public partial class TimerForm : Form
                 string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
                 Directory.CreateDirectory(dir);
                 string file = Path.Combine(dir, DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
-                string line = DateTime.Now.ToString("HH:mm:ss") + " - Ny aktiv periode startet - Score: Team Yellow " + homeScore + " - Team Red " + awayScore;
+                //string line = DateTime.Now.ToString("HH:mm:ss") + " - Ny aktiv periode startet - Score: Team Yellow " + homeScore + " - Team Red " + awayScore;
+                string line = DateTime.Now.ToString("HH:mm:ss") + " - Score: Team Yellow " + homeScore + " - Team Red " + awayScore;
                 await File.AppendAllTextAsync(file, line + Environment.NewLine);
+            }
+            catch { /* ignore logging errors */ }
+        }
+        
+        private async Task ReadTodaysLog()
+        {
+            try
+            {
+                string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+                Directory.CreateDirectory(dir);
+                string file = Path.Combine(dir, DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
+                //string line = DateTime.Now.ToString("HH:mm:ss") + " - Ny aktiv periode startet - Score: Team Yellow " + homeScore + " - Team Red " + awayScore;
+                //string line = DateTime.Now.ToString("HH:mm:ss") + " - Score: Team Yellow " + homeScore + " - Team Red " + awayScore;
+                
+                string[] lines = await File.ReadAllLinesAsync(file);
+                var regex = new Regex(@"Team Yellow (\\d+) - Team Red (\\d+)");
+                
+                foreach (string line in lines)
+                {
+                    var match = regex.Match(line);
+                    if (match.Success)
+                    {
+                        int home = int.Parse(match.Groups[1].Value);
+                        int away = int.Parse(match.Groups[2].Value);
+                        
+                        if (home > away)
+                        {
+                            homeWin++;
+                        }
+                        else if (away > home)
+                        {
+                            awayWin++;
+                        }
+                        else
+                        {
+                            draw++;
+                        }
+                    }
+                }
+                
+                lblTotal.Text = $"{homeWin} - {draw} - {awayWin}";
             }
             catch { /* ignore logging errors */ }
         }
@@ -293,25 +480,32 @@ public partial class TimerForm : Form
             }
         }
 
-        private void PlaySound(string path)
+        private void TimerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (File.Exists(path))
+            if (!isActivePeriod)
             {
-                try
-                {
-                    using var audioFile = new AudioFileReader(path);
-                    using var outputDevice = new WaveOutEvent();
-                    outputDevice.Init(audioFile);
-                    outputDevice.Play();
-                        
-                    while (outputDevice.PlaybackState == PlaybackState.Playing)
-                    {
-                        Application.DoEvents();
-                    }
-                }
-                catch
-                {
-                }
+                LogPeriodStart().GetAwaiter();    
             }
+            
+            // Stopp timere
+            tickTimer?.Stop();
+            yHoldTimer?.Stop();
+            rHoldTimer?.Stop();
+
+            // Stopp og rydd opp i lyd
+            beepPlayer?.Stop();
+            beepPlayer?.Dispose();
+            beepReader?.Dispose();
+
+            whistlePlayer?.Stop();
+            whistlePlayer?.Dispose();
+            whistleReader?.Dispose();
+
+            // Stopp tale og frigjør
+            synth?.Dispose();
+
+            // Avregistrere eventhandlers (valgfritt)
+            this.KeyDown -= TimerForm_KeyDown;
+            this.KeyUp -= TimerForm_KeyUp;
         }
     }

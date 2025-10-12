@@ -24,4 +24,9 @@ public partial class MainForm : Form
         this.Hide();
         timerForm.FormClosed += (s, ev) => this.Show();
     }
+
+    private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+    {
+        
+    }
 }

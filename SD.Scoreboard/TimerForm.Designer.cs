@@ -20,78 +20,82 @@ partial class TimerForm
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
         private void InitializeComponent()
         {
-            this.lblHomeScore = new System.Windows.Forms.Label();
-            this.lblAwayScore = new System.Windows.Forms.Label();
-            this.lblTime = new System.Windows.Forms.Label();
-            this.lblStatus = new System.Windows.Forms.Label();
-            this.lblTotal = new System.Windows.Forms.Label();    
-            this.SuspendLayout();
+            lblHomeScore = new System.Windows.Forms.Label();
+            lblAwayScore = new System.Windows.Forms.Label();
+            lblTime = new System.Windows.Forms.Label();
+            lblStatus = new System.Windows.Forms.Label();
+            lblTotal = new System.Windows.Forms.Label();
+            SuspendLayout();
             // 
             // lblHomeScore
             // 
-            this.lblHomeScore.Font = new System.Drawing.Font("Segoe UI", 80F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblHomeScore.Location = new System.Drawing.Point(12, 27);
-            this.lblHomeScore.Name = "lblHomeScore";
-            this.lblHomeScore.Size = new System.Drawing.Size(200, 150);
-            this.lblHomeScore.TabIndex = 0;
-            this.lblHomeScore.Text = "0";
-            this.lblHomeScore.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblHomeScore.Font = new System.Drawing.Font("Segoe UI", 80F);
+            lblHomeScore.Location = new System.Drawing.Point(12, 27);
+            lblHomeScore.Name = "lblHomeScore";
+            lblHomeScore.Size = new System.Drawing.Size(200, 150);
+            lblHomeScore.TabIndex = 0;
+            lblHomeScore.Text = "0";
+            lblHomeScore.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblAwayScore
             // 
-            this.lblAwayScore.Font = new System.Drawing.Font("Segoe UI", 80F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblAwayScore.Location = new System.Drawing.Point(476, 27);
-            this.lblAwayScore.Name = "lblAwayScore";
-            this.lblAwayScore.Size = new System.Drawing.Size(200, 150);
-            this.lblAwayScore.TabIndex = 1;
-            this.lblAwayScore.Text = "0";
-            this.lblAwayScore.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblAwayScore.Font = new System.Drawing.Font("Segoe UI", 80F);
+            lblAwayScore.Location = new System.Drawing.Point(476, 27);
+            lblAwayScore.Name = "lblAwayScore";
+            lblAwayScore.Size = new System.Drawing.Size(200, 150);
+            lblAwayScore.TabIndex = 1;
+            lblAwayScore.Text = "0";
+            lblAwayScore.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblTime
             // 
-            this.lblTime.Font = new System.Drawing.Font("Segoe UI", 80F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblTime.Location = new System.Drawing.Point(194, 27);
-            this.lblTime.Name = "lblTime";
-            this.lblTime.Size = new System.Drawing.Size(300, 150);
-            this.lblTime.TabIndex = 2;
-            this.lblTime.Text = "0:00";
-            this.lblTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblTime.Font = new System.Drawing.Font("Segoe UI", 80F);
+            lblTime.Location = new System.Drawing.Point(194, 27);
+            lblTime.Name = "lblTime";
+            lblTime.Size = new System.Drawing.Size(300, 150);
+            lblTime.TabIndex = 2;
+            lblTime.Text = "0:00";
+            lblTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblStatus
             // 
-            this.lblStatus.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblStatus.Location = new System.Drawing.Point(12, 190);
-            this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(664, 40);
-            this.lblStatus.TabIndex = 3;
-            this.lblStatus.Text = "Aktiv periode";
-            this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblStatus.Font = new System.Drawing.Font("Segoe UI", 18F);
+            lblStatus.Location = new System.Drawing.Point(12, 190);
+            lblStatus.Name = "lblStatus";
+            lblStatus.Size = new System.Drawing.Size(664, 40);
+            lblStatus.TabIndex = 3;
+            lblStatus.Text = "Aktiv periode";
+            lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblTotal
             // 
-            this.lblTotal.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblTotal.Location = new System.Drawing.Point(12, 250);
-            this.lblTotal.Name = "lblTotal";
-            this.lblTotal.Size = new System.Drawing.Size(664, 40);
-            this.lblTotal.TabIndex = 4;
-            this.lblTotal.Text = "0 - 0 - 0";
-            this.lblTotal.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblTotal.Font = new System.Drawing.Font("Segoe UI", 12F);
+            lblTotal.Location = new System.Drawing.Point(12, 250);
+            lblTotal.Name = "lblTotal";
+            lblTotal.Size = new System.Drawing.Size(664, 40);
+            lblTotal.TabIndex = 4;
+            lblTotal.Text = "0 - 0 - 0";
+            lblTotal.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // TimerForm
             // 
-            this.ClientSize = new System.Drawing.Size(688, 240);
-            this.Controls.Add(this.lblTotal);
-            this.Controls.Add(this.lblStatus);
-            this.Controls.Add(this.lblTime);
-            this.Controls.Add(this.lblAwayScore);
-            this.Controls.Add(this.lblHomeScore);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.Name = "TimerForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "SD.Scoreboard";
-            this.ResumeLayout(false);
+            ClientSize = new System.Drawing.Size(688, 240);
+            Controls.Add(lblTotal);
+            Controls.Add(lblStatus);
+            Controls.Add(lblTime);
+            Controls.Add(lblAwayScore);
+            Controls.Add(lblHomeScore);
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            Text = "SD.Scoreboard";
+            FormClosing += TimerForm_FormClosing;
+            ResumeLayout(false);
         }
     }

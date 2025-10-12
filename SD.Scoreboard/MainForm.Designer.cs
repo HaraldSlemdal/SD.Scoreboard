@@ -22,101 +22,105 @@ partial class MainForm
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
         private void InitializeComponent()
         {
-            this.nudActiveMinutes = new System.Windows.Forms.NumericUpDown();
-            this.nudActiveSeconds = new System.Windows.Forms.NumericUpDown();
-            this.nudPauseMinutes = new System.Windows.Forms.NumericUpDown();
-            this.nudPauseSeconds = new System.Windows.Forms.NumericUpDown();
-            this.btnStart = new System.Windows.Forms.Button();
-            this.lblActive = new System.Windows.Forms.Label();
-            this.lblPause = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.nudActiveMinutes)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudActiveSeconds)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPauseMinutes)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPauseSeconds)).BeginInit();
-            this.SuspendLayout();
+            nudActiveMinutes = new System.Windows.Forms.NumericUpDown();
+            nudActiveSeconds = new System.Windows.Forms.NumericUpDown();
+            nudPauseMinutes = new System.Windows.Forms.NumericUpDown();
+            nudPauseSeconds = new System.Windows.Forms.NumericUpDown();
+            btnStart = new System.Windows.Forms.Button();
+            lblActive = new System.Windows.Forms.Label();
+            lblPause = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)nudActiveMinutes).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudActiveSeconds).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudPauseMinutes).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudPauseSeconds).BeginInit();
+            SuspendLayout();
             // 
             // nudActiveMinutes
             // 
-            this.nudActiveMinutes.Location = new System.Drawing.Point(30, 40);
-            this.nudActiveMinutes.Maximum = new decimal(new int[] { 59, 0, 0, 0 });
-            this.nudActiveMinutes.Name = "nudActiveMinutes";
-            this.nudActiveMinutes.Size = new System.Drawing.Size(60, 22);
-            this.nudActiveMinutes.TabIndex = 0;
+            nudActiveMinutes.Location = new System.Drawing.Point(30, 40);
+            nudActiveMinutes.Maximum = new decimal(new int[] { 59, 0, 0, 0 });
+            nudActiveMinutes.Name = "nudActiveMinutes";
+            nudActiveMinutes.Size = new System.Drawing.Size(60, 23);
+            nudActiveMinutes.TabIndex = 0;
             // 
             // nudActiveSeconds
             // 
-            this.nudActiveSeconds.Location = new System.Drawing.Point(100, 40);
-            this.nudActiveSeconds.Maximum = new decimal(new int[] { 59, 0, 0, 0 });
-            this.nudActiveSeconds.Name = "nudActiveSeconds";
-            this.nudActiveSeconds.Size = new System.Drawing.Size(60, 22);
-            this.nudActiveSeconds.TabIndex = 1;
+            nudActiveSeconds.Location = new System.Drawing.Point(100, 40);
+            nudActiveSeconds.Maximum = new decimal(new int[] { 59, 0, 0, 0 });
+            nudActiveSeconds.Name = "nudActiveSeconds";
+            nudActiveSeconds.Size = new System.Drawing.Size(60, 23);
+            nudActiveSeconds.TabIndex = 1;
             // 
             // nudPauseMinutes
             // 
-            this.nudPauseMinutes.Location = new System.Drawing.Point(30, 110);
-            this.nudPauseMinutes.Maximum = new decimal(new int[] { 59, 0, 0, 0 });
-            this.nudPauseMinutes.Name = "nudPauseMinutes";
-            this.nudPauseMinutes.Size = new System.Drawing.Size(60, 22);
-            this.nudPauseMinutes.TabIndex = 2;
+            nudPauseMinutes.Location = new System.Drawing.Point(30, 110);
+            nudPauseMinutes.Maximum = new decimal(new int[] { 59, 0, 0, 0 });
+            nudPauseMinutes.Name = "nudPauseMinutes";
+            nudPauseMinutes.Size = new System.Drawing.Size(60, 23);
+            nudPauseMinutes.TabIndex = 2;
             // 
             // nudPauseSeconds
             // 
-            this.nudPauseSeconds.Location = new System.Drawing.Point(100, 110);
-            this.nudPauseSeconds.Maximum = new decimal(new int[] { 59, 0, 0, 0 });
-            this.nudPauseSeconds.Name = "nudPauseSeconds";
-            this.nudPauseSeconds.Size = new System.Drawing.Size(60, 22);
-            this.nudPauseSeconds.TabIndex = 3;
+            nudPauseSeconds.Location = new System.Drawing.Point(100, 110);
+            nudPauseSeconds.Maximum = new decimal(new int[] { 59, 0, 0, 0 });
+            nudPauseSeconds.Name = "nudPauseSeconds";
+            nudPauseSeconds.Size = new System.Drawing.Size(60, 23);
+            nudPauseSeconds.TabIndex = 3;
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(30, 160);
-            this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(130, 40);
-            this.btnStart.TabIndex = 4;
-            this.btnStart.Text = "Start";
-            this.btnStart.UseVisualStyleBackColor = true;
-            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
+            btnStart.Location = new System.Drawing.Point(30, 160);
+            btnStart.Name = "btnStart";
+            btnStart.Size = new System.Drawing.Size(130, 40);
+            btnStart.TabIndex = 4;
+            btnStart.Text = "Start";
+            btnStart.UseVisualStyleBackColor = true;
+            btnStart.Click += btnStart_Click;
             // 
             // lblActive
             // 
-            this.lblActive.AutoSize = true;
-            this.lblActive.Location = new System.Drawing.Point(27, 15);
-            this.lblActive.Name = "lblActive";
-            this.lblActive.Size = new System.Drawing.Size(137, 17);
-            this.lblActive.TabIndex = 5;
-            this.lblActive.Text = "Aktiv periode (mm:ss)";
+            lblActive.AutoSize = true;
+            lblActive.Location = new System.Drawing.Point(27, 15);
+            lblActive.Name = "lblActive";
+            lblActive.Size = new System.Drawing.Size(123, 15);
+            lblActive.TabIndex = 5;
+            lblActive.Text = "Aktiv periode (mm:ss)";
             // 
             // lblPause
             // 
-            this.lblPause.AutoSize = true;
-            this.lblPause.Location = new System.Drawing.Point(27, 85);
-            this.lblPause.Name = "lblPause";
-            this.lblPause.Size = new System.Drawing.Size(118, 17);
-            this.lblPause.TabIndex = 6;
-            this.lblPause.Text = "Pause (mm:ss)";
+            lblPause.AutoSize = true;
+            lblPause.Location = new System.Drawing.Point(27, 85);
+            lblPause.Name = "lblPause";
+            lblPause.Size = new System.Drawing.Size(84, 15);
+            lblPause.TabIndex = 6;
+            lblPause.Text = "Pause (mm:ss)";
             // 
             // MainForm
             // 
-            this.ClientSize = new System.Drawing.Size(200, 220);
-            this.Controls.Add(this.lblPause);
-            this.Controls.Add(this.lblActive);
-            this.Controls.Add(this.btnStart);
-            this.Controls.Add(this.nudPauseSeconds);
-            this.Controls.Add(this.nudPauseMinutes);
-            this.Controls.Add(this.nudActiveSeconds);
-            this.Controls.Add(this.nudActiveMinutes);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.Name = "MainForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "SD.Scoreboard - Oppsett";
-            ((System.ComponentModel.ISupportInitialize)(this.nudActiveMinutes)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudActiveSeconds)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPauseMinutes)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPauseSeconds)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            ClientSize = new System.Drawing.Size(200, 220);
+            Controls.Add(lblPause);
+            Controls.Add(lblActive);
+            Controls.Add(btnStart);
+            Controls.Add(nudPauseSeconds);
+            Controls.Add(nudPauseMinutes);
+            Controls.Add(nudActiveSeconds);
+            Controls.Add(nudActiveMinutes);
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            Text = "SD.Scoreboard - Oppsett";
+            FormClosing += MainForm_FormClosing;
+            ((System.ComponentModel.ISupportInitialize)nudActiveMinutes).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudActiveSeconds).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudPauseMinutes).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudPauseSeconds).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
     }
