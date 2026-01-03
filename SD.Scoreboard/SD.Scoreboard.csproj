@@ -22,4 +22,29 @@
       <PackageReference Include="System.Speech" Version="9.0.8" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Sounds\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Sounds\10seconds.mp3">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Sounds\beep.mp3">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Sounds\calling-whistle.mp3">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Sounds\ElevenLabs_Text_to_Speech_audio.mp3">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Sounds\Halfway_there.mp3">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Sounds\well_done2.mp3">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
