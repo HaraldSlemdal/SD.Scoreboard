@@ -85,7 +85,7 @@ partial class TimerForm
             // 
             // TimerForm
             // 
-            ClientSize = new System.Drawing.Size(688, 240);
+            ClientSize = new System.Drawing.Size(688, 308);
             Controls.Add(lblTotal);
             Controls.Add(lblStatus);
             Controls.Add(lblTime);

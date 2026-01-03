@@ -20,6 +20,10 @@ namespace SD.Scoreboard
         private int homeScore = 0;
         private int awayScore = 0;
 
+        private int homeWin = 0;
+        private int awayWin = 0;
+        private int draw = 0;
+        
         private bool yDown = false;
         private bool rDown = false;
 
@@ -58,20 +62,18 @@ namespace SD.Scoreboard
             var baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sounds");
             //Lyder fra https://elevenlabs.io/
             //beepSoundPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sounds", "beep.wav");
-            beepSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\beep.mp3";
-            whistleSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\calling-whistle.mp3";
-            getReadySoundPath = @"C:\Users\hs.SKOGDATA\Downloads\ElevenLabs_Text_to_Speech_audio.mp3";
+            beepSoundPath = @"C:\Users\hs\Downloads\beep.mp3";
+            whistleSoundPath = @"C:\Users\hs\Downloads\calling-whistle.mp3";
+            getReadySoundPath = @"C:\Users\hs\Downloads\ElevenLabs_Text_to_Speech_audio.mp3";
             //wellDoneSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\well_done.mp3";
-            wellDoneSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\well_done2.mp3";
+            wellDoneSoundPath = @"C:\Users\hs\Downloads\well_done2.mp3";
             //halfwaySoundPath = @"C:\Users\hs.SKOGDATA\Downloads\halfway.mp3";
-            halfwaySoundPath = @"C:\Users\hs.SKOGDATA\Downloads\Halfway_there.mp3";
-            tenSecondsSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\10seconds.mp3";
+            halfwaySoundPath = @"C:\Users\hs\Downloads\Halfway_there.mp3";
+            tenSecondsSoundPath = @"C:\Users\hs\Downloads\10seconds.mp3";
             InitAudio();
             PreloadSounds();
             ScaleControls();
-            StartActivePeriod();
-            StartActivePeriod();
-            
+            StartActivePeriod(first: true);
 
             tickTimer = new Timer();
             tickTimer.Interval = 1000;
@@ -147,7 +149,7 @@ namespace SD.Scoreboard
             }
         }
 
-        private void StartActivePeriod()
+        private void StartActivePeriod(bool first = false)
         {
             PlayCached(whistleSound);
             
@@ -155,6 +157,10 @@ namespace SD.Scoreboard
             remainingSeconds = activeSeconds;
             lblStatus.Text = "Aktiv periode";
             LogPeriodStart();
+            if (!first)
+            {
+                UpdateTotal();
+            }
             homeScore = 0;
             awayScore = 0;
             UpdateScores();
@@ -218,6 +224,24 @@ namespace SD.Scoreboard
         {
             lblHomeScore.Text = homeScore.ToString();
             lblAwayScore.Text = awayScore.ToString();
+        }
+        
+        private void UpdateTotal()
+        {
+            if (homeScore > awayScore)
+            {
+                homeWin++;
+            }
+            else if (awayScore > homeScore)
+            {
+                awayWin++;
+            }
+            else
+            {
+                draw++;
+            }
+            
+            lblTotal.Text = $"{homeWin} - {draw} - {awayWin}";
         }
 
         private void TimerForm_KeyDown(object sender, KeyEventArgs e)
