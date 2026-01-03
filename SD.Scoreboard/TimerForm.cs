@@ -1,16 +1,15 @@
 using System;
 using System.IO;
-using System.Speech.Synthesis;
+using System.Linq;
 using System.Windows.Forms;
-using System.Media;
-using System.Text.RegularExpressions;
 using Timer = System.Windows.Forms.Timer;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders; 
 
 
-namespace SD.Scoreboard;
-
-public partial class TimerForm : Form
+namespace SD.Scoreboard
+{
+    public partial class TimerForm : Form
     {
         private int activeSeconds;
         private int pauseSeconds;
@@ -20,10 +19,6 @@ public partial class TimerForm : Form
 
         private int homeScore = 0;
         private int awayScore = 0;
-        
-        private int homeWin = 0;
-        private int awayWin = 0;
-        private int draw = 0;
 
         private bool yDown = false;
         private bool rDown = false;
@@ -33,34 +28,23 @@ public partial class TimerForm : Form
         private bool yHoldTriggered = false;
         private bool rHoldTriggered = false;
 
-        private SpeechSynthesizer synth = new SpeechSynthesizer();
-
+        // Sound files
+        private readonly string beepPath;
         private readonly string beepSoundPath;
         private readonly string whistleSoundPath;
         private readonly string getReadySoundPath;
         private readonly string wellDoneSoundPath;
         private readonly string halfwaySoundPath;
         private readonly string tenSecondsSoundPath;
-        
-        // Preloaded audio
-        private AudioFileReader beepReader;
-        private WaveOutEvent beepPlayer;
+        private CachedSound beepSound;
+        private CachedSound whistleSound;
+        private CachedSound halfwaySound;
+        private CachedSound tenSecondsSound;
+        private CachedSound periodOverSound;
 
-
-        private AudioFileReader whistleReader;
-        private WaveOutEvent whistlePlayer;
-        
-        private AudioFileReader getReadyReader;
-        private WaveOutEvent getReadyPlayer;
-        
-        private AudioFileReader wellDoneReader;
-        private WaveOutEvent wellDonePlayer;
-        
-        private AudioFileReader halfwayReader;
-        private WaveOutEvent halfwayPlayer;
-        
-        private AudioFileReader tenSecondsReader;
-        private WaveOutEvent tenSecondsPlayer;
+        // One shared output + mixer kept alive for the app lifetime
+        private IWavePlayer outputDevice;
+        private MixingSampleProvider mixer; // float 32-bit
 
         public TimerForm(int activeSeconds, int pauseSeconds)
         {
@@ -70,28 +54,24 @@ public partial class TimerForm : Form
 
             this.WindowState = FormWindowState.Maximized;
             this.FormBorderStyle = FormBorderStyle.None;
-            synth.Rate = 2;
-            
+
+            var baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sounds");
             //Lyder fra https://elevenlabs.io/
             //beepSoundPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sounds", "beep.wav");
-            beepSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\beep-329314.mp3";
-            whistleSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\calling-whistle-41861.mp3";
+            beepSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\beep.mp3";
+            whistleSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\calling-whistle.mp3";
             getReadySoundPath = @"C:\Users\hs.SKOGDATA\Downloads\ElevenLabs_Text_to_Speech_audio.mp3";
             //wellDoneSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\well_done.mp3";
             wellDoneSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\well_done2.mp3";
             //halfwaySoundPath = @"C:\Users\hs.SKOGDATA\Downloads\halfway.mp3";
             halfwaySoundPath = @"C:\Users\hs.SKOGDATA\Downloads\Halfway_there.mp3";
             tenSecondsSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\10seconds.mp3";
-            
-            
-
-            _ = ReadTodaysLog();
+            InitAudio();
             PreloadSounds();
-            //ScaleControls();
-
-            //remainingSeconds = 20;
-            //StartPausePeriod(false);
-            _ = StartActivePeriod();
+            ScaleControls();
+            StartActivePeriod();
+            StartActivePeriod();
+            
 
             tickTimer = new Timer();
             tickTimer.Interval = 1000;
@@ -109,134 +89,84 @@ public partial class TimerForm : Form
             this.KeyPreview = true;
             this.KeyDown += TimerForm_KeyDown;
             this.KeyUp += TimerForm_KeyUp;
+            this.FormClosing += TimerForm_FormClosing;
         }
 
-        private async Task StartActivePeriod()
+        private void InitAudio()
         {
-            isActivePeriod = true;
-            remainingSeconds = activeSeconds;
-            lblStatus.Text = "Aktiv periode";
-            _ = LogPeriodStart();
-            UpdateTimeLabel();
-            homeScore = 0;
-            awayScore = 0;
-            UpdateScores();
+            // Mixer runs continuously so the device is primed (no clipped starts)
+            mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 1)) { ReadFully = true };
+            outputDevice = new WaveOutEvent { DesiredLatency = 60 }; // ~60ms to be safe
+            outputDevice.Init(mixer);
+            outputDevice.Play(); // start with silence so device is ready
         }
 
-        private void StartPausePeriod(bool setRemainingSeconds = true)
-        {
-            isActivePeriod = false;
-            if (setRemainingSeconds)
-            {
-                remainingSeconds = pauseSeconds;
-            }
-            
-            lblStatus.Text = "Pause";
-            UpdateTimeLabel();
-        }
-        
         private void PreloadSounds()
         {
             try
             {
-                if (File.Exists(beepSoundPath))
-                {
-                    beepReader = new AudioFileReader(beepSoundPath);
-                    beepPlayer = new WaveOutEvent();
-                    beepPlayer.Init(beepReader);
-                }
-
-
-                if (File.Exists(whistleSoundPath))
-                {
-                    whistleReader = new AudioFileReader(whistleSoundPath);
-                    whistlePlayer = new WaveOutEvent();
-                    whistlePlayer.Init(whistleReader);
-                }
-                
-                if (File.Exists(getReadySoundPath))
-                {
-                    getReadyReader = new AudioFileReader(getReadySoundPath);
-                    getReadyPlayer = new WaveOutEvent();
-                    getReadyPlayer.Init(getReadyReader);
-                }
-                
-                if (File.Exists(wellDoneSoundPath))
-                {
-                    wellDoneReader = new AudioFileReader(wellDoneSoundPath);
-                    wellDonePlayer = new WaveOutEvent();
-                    wellDonePlayer.Init(wellDoneReader);
-                }
-                
-                if (File.Exists(halfwaySoundPath))
-                {
-                    halfwayReader = new AudioFileReader(halfwaySoundPath);
-                    halfwayPlayer = new WaveOutEvent();
-                    halfwayPlayer.Init(halfwayReader);
-                }
-                
-                if (File.Exists(tenSecondsSoundPath))
-                {
-                    tenSecondsReader = new AudioFileReader(tenSecondsSoundPath);
-                    tenSecondsPlayer = new WaveOutEvent();
-                    tenSecondsPlayer.Init(tenSecondsReader);
-                }
+                if (File.Exists(beepSoundPath)) { beepSound = new CachedSound(beepSoundPath); }
+                if (File.Exists(whistleSoundPath)) { whistleSound = new CachedSound(whistleSoundPath); }
+                if (File.Exists(halfwaySoundPath)) { halfwaySound = new CachedSound(halfwaySoundPath); }
+                if (File.Exists(tenSecondsSoundPath)) { tenSecondsSound = new CachedSound(tenSecondsSoundPath); }
+                if (File.Exists(wellDoneSoundPath)) { periodOverSound = new CachedSound(wellDoneSoundPath); }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                // swallow – we simply won't play sounds that fail loading
+            }
         }
 
+        private void PlayCached(CachedSound sound)
+        {
+            if (sound != null)
+            {
+                // Each play gets a fresh provider; mixer handles parallel playback safely
+                var provider = new CachedSoundSampleProvider(sound);
+                // If formats differ, convert to mixer's format
+                ISampleProvider toAdd = provider;
+                if (!provider.WaveFormat.Equals(mixer.WaveFormat))
+                {
+                    toAdd = new WdlResamplingSampleProvider(provider, mixer.WaveFormat.SampleRate);
+                }
+                mixer.AddMixerInput(toAdd);
+            }
+        }
 
-        private void PlayBeep()
+        private void ScaleControls()
         {
-            if (beepPlayer != null && beepReader != null)
+            float scaleFactor = Math.Min((float)Screen.PrimaryScreen.Bounds.Width / 688f, (float)Screen.PrimaryScreen.Bounds.Height / 240f);
+            foreach (Control c in this.Controls)
             {
-                beepReader.Position = 0;
-                beepPlayer.Play();
+                c.Font = new System.Drawing.Font(c.Font.FontFamily, c.Font.Size * scaleFactor, c.Font.Style);
+                c.Width = (int)(c.Width * scaleFactor);
+                c.Height = (int)(c.Height * scaleFactor);
+                c.Left = (int)(c.Left * scaleFactor);
+                c.Top = (int)(c.Top * scaleFactor);
             }
         }
-        private void PlayWhistle()
+
+        private void StartActivePeriod()
         {
-            if (whistlePlayer != null && whistleReader != null)
-            {
-                whistleReader.Position = 0;
-                whistlePlayer.Play();
-            }
+            PlayCached(whistleSound);
+            
+            isActivePeriod = true;
+            remainingSeconds = activeSeconds;
+            lblStatus.Text = "Aktiv periode";
+            LogPeriodStart();
+            homeScore = 0;
+            awayScore = 0;
+            UpdateScores();
+            UpdateTimeLabel();
         }
-        
-        private void PlayGetReady()
+
+        private void StartPausePeriod()
         {
-            if (getReadyPlayer != null && getReadyReader != null)
-            {
-                getReadyReader.Position = 0;
-                getReadyPlayer.Play();
-            }
-        }
-        
-        private void PlayWellDone()
-        {
-            if (wellDonePlayer != null && wellDoneReader != null)
-            {
-                wellDoneReader.Position = 0;
-                wellDonePlayer.Play();
-            }
-        }
-        
-        private void PlayHalfway()
-        {
-            if (halfwayPlayer != null && halfwayReader != null)
-            {
-                halfwayReader.Position = 0;
-                halfwayPlayer.Play();
-            }
-        }
-        
-        private void PlayTenSeconds()
-        {
-            if (tenSecondsPlayer != null && tenSecondsReader != null)
-            {
-                tenSecondsReader.Position = 0;
-                tenSecondsPlayer.Play();
-            }
+            isActivePeriod = false;
+            remainingSeconds = pauseSeconds;
+            lblStatus.Text = "Pause";
+            UpdateTimeLabel();
         }
 
         private void TickTimer_Tick(object sender, EventArgs e)
@@ -246,40 +176,32 @@ public partial class TimerForm : Form
                 remainingSeconds--;
                 UpdateTimeLabel();
 
-                // Halfway announcement
                 if (isActivePeriod && remainingSeconds == activeSeconds / 2)
                 {
-                    PlayHalfway();
+                    PlayCached(halfwaySound);
                 }
 
-                if (!isActivePeriod && remainingSeconds == 20)
+                if (remainingSeconds == 10)
                 {
-                    PlayGetReady();
-                }
-                
-                if (isActivePeriod && remainingSeconds == 10)
-                {
-                    PlayTenSeconds();
+                    PlayCached(tenSecondsSound);
                 }
 
-                if (remainingSeconds is <= 5 and > 0)
+                if (remainingSeconds <= 5 && remainingSeconds > 0)
                 {
-                    PlayBeep();
+                    PlayCached(beepSound);
                 }
 
                 if (remainingSeconds == 0)
                 {
-                    // switch state
+                    //PlayCached(whistleSound);
                     if (isActivePeriod)
                     {
                         StartPausePeriod();
-                        PlayWellDone();
+                        PlayCached(periodOverSound);
                     }
                     else
                     {
-                        PlayWhistle();
-                        UpdateTotal();
-                        _ = StartActivePeriod();
+                        StartActivePeriod();
                     }
                 }
             }
@@ -298,24 +220,6 @@ public partial class TimerForm : Form
             lblAwayScore.Text = awayScore.ToString();
         }
 
-        private void UpdateTotal()
-        {
-            if (homeScore > awayScore)
-            {
-                homeWin++;
-            }
-            else if (awayScore > homeScore)
-            {
-                awayWin++;
-            }
-            else
-            {
-                draw++;
-            }
-            
-            lblTotal.Text = $"{homeWin} - {draw} - {awayWin}";
-        }
-
         private void TimerForm_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Y && !yDown)
@@ -323,10 +227,8 @@ public partial class TimerForm : Form
                 yDown = true;
                 yHoldTriggered = false;
                 yHoldTimer.Start();
-                // check simultaneous
                 if (rDown)
                 {
-                    // both pressed simultaneously -> toggle pause/start
                     TogglePause();
                 }
             }
@@ -354,13 +256,8 @@ public partial class TimerForm : Form
                 yHoldTimer.Stop();
                 if (!yHoldTriggered)
                 {
-                    // short press -> increment
                     homeScore++;
                     UpdateScores();
-                }
-                else
-                {
-                    // hold already triggered, we already set to 0
                 }
                 CheckBothHeldReset();
             }
@@ -372,10 +269,6 @@ public partial class TimerForm : Form
                 {
                     awayScore++;
                     UpdateScores();
-                }
-                else
-                {
-                    // hold reset already
                 }
                 CheckBothHeldReset();
             }
@@ -397,10 +290,8 @@ public partial class TimerForm : Form
 
         private void CheckBothHeldReset()
         {
-            // If both holdTriggered are true at same time, reset everything
             if (yHoldTriggered && rHoldTriggered)
             {
-                // reset timer and scores
                 homeScore = 0;
                 awayScore = 0;
                 isActivePeriod = true;
@@ -410,102 +301,30 @@ public partial class TimerForm : Form
             }
         }
 
-        private async Task LogPeriodStart()
+        private void LogPeriodStart()
         {
             try
             {
                 string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
                 Directory.CreateDirectory(dir);
                 string file = Path.Combine(dir, DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
-                //string line = DateTime.Now.ToString("HH:mm:ss") + " - Ny aktiv periode startet - Score: Team Yellow " + homeScore + " - Team Red " + awayScore;
-                string line = DateTime.Now.ToString("HH:mm:ss") + " - Score: Team Yellow " + homeScore + " - Team Red " + awayScore;
-                await File.AppendAllTextAsync(file, line + Environment.NewLine);
+                string line = DateTime.Now.ToString("HH:mm:ss") + $" - Ny aktiv periode startet - Score: Team Yellow {homeScore} - Team Red {awayScore}";
+                File.AppendAllText(file, line + Environment.NewLine);
             }
-            catch { /* ignore logging errors */ }
-        }
-        
-        private async Task ReadTodaysLog()
-        {
-            try
+            catch
             {
-                string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
-                Directory.CreateDirectory(dir);
-                string file = Path.Combine(dir, DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
-                //string line = DateTime.Now.ToString("HH:mm:ss") + " - Ny aktiv periode startet - Score: Team Yellow " + homeScore + " - Team Red " + awayScore;
-                //string line = DateTime.Now.ToString("HH:mm:ss") + " - Score: Team Yellow " + homeScore + " - Team Red " + awayScore;
-                
-                string[] lines = await File.ReadAllLinesAsync(file);
-                var regex = new Regex(@"Team Yellow (\\d+) - Team Red (\\d+)");
-                
-                foreach (string line in lines)
-                {
-                    var match = regex.Match(line);
-                    if (match.Success)
-                    {
-                        int home = int.Parse(match.Groups[1].Value);
-                        int away = int.Parse(match.Groups[2].Value);
-                        
-                        if (home > away)
-                        {
-                            homeWin++;
-                        }
-                        else if (away > home)
-                        {
-                            awayWin++;
-                        }
-                        else
-                        {
-                            draw++;
-                        }
-                    }
-                }
-                
-                lblTotal.Text = $"{homeWin} - {draw} - {awayWin}";
-            }
-            catch { /* ignore logging errors */ }
-        }
-        
-        private void ScaleControls()
-        {
-            float scaleFactor = Math.Min((float)Screen.PrimaryScreen.Bounds.Width / 688f,
-                (float)Screen.PrimaryScreen.Bounds.Height / 240f);
-
-            foreach (Control c in this.Controls)
-            {
-                c.Font = new System.Drawing.Font(c.Font.FontFamily, c.Font.Size * scaleFactor, c.Font.Style);
-                c.Width = (int)(c.Width * scaleFactor);
-                c.Height = (int)(c.Height * scaleFactor);
-                c.Left = (int)(c.Left * scaleFactor);
-                c.Top = (int)(c.Top * scaleFactor);
             }
         }
 
         private void TimerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!isActivePeriod)
-            {
-                LogPeriodStart().GetAwaiter();    
-            }
-            
-            // Stopp timere
             tickTimer?.Stop();
             yHoldTimer?.Stop();
             rHoldTimer?.Stop();
 
-            // Stopp og rydd opp i lyd
-            beepPlayer?.Stop();
-            beepPlayer?.Dispose();
-            beepReader?.Dispose();
-
-            whistlePlayer?.Stop();
-            whistlePlayer?.Dispose();
-            whistleReader?.Dispose();
-
-            // Stopp tale og frigjør
-            synth?.Dispose();
-
-            // Avregistrere eventhandlers (valgfritt)
-            this.KeyDown -= TimerForm_KeyDown;
-            this.KeyUp -= TimerForm_KeyUp;
+            outputDevice?.Stop();
+            outputDevice?.Dispose();
+            // mixer is managed object only; let GC collect
         }
     }
+}
