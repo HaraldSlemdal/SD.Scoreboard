@@ -61,15 +61,14 @@ namespace SD.Scoreboard
 
             var baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sounds");
             //Lyder fra https://elevenlabs.io/
-            //beepSoundPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sounds", "beep.wav");
-            beepSoundPath = @"C:\Users\hs\Downloads\beep.mp3";
-            whistleSoundPath = @"C:\Users\hs\Downloads\calling-whistle.mp3";
-            getReadySoundPath = @"C:\Users\hs\Downloads\ElevenLabs_Text_to_Speech_audio.mp3";
-            //wellDoneSoundPath = @"C:\Users\hs.SKOGDATA\Downloads\well_done.mp3";
-            wellDoneSoundPath = @"C:\Users\hs\Downloads\well_done2.mp3";
-            //halfwaySoundPath = @"C:\Users\hs.SKOGDATA\Downloads\halfway.mp3";
-            halfwaySoundPath = @"C:\Users\hs\Downloads\Halfway_there.mp3";
-            tenSecondsSoundPath = @"C:\Users\hs\Downloads\10seconds.mp3";
+            
+            beepSoundPath = Path.Combine(baseDir, "beep.mp3");
+            whistleSoundPath = Path.Combine(baseDir, "calling-whistle.mp3");
+            getReadySoundPath = Path.Combine(baseDir, "ElevenLabs_Text_to_Speech_audio.mp3");
+            wellDoneSoundPath = Path.Combine(baseDir, "well_done2.mp3");
+            halfwaySoundPath = Path.Combine(baseDir, "Halfway_there.mp3");
+            tenSecondsSoundPath = Path.Combine(baseDir, "10seconds.mp3");
+
             InitAudio();
             PreloadSounds();
             ScaleControls();
