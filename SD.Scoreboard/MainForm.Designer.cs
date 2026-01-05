@@ -12,6 +12,7 @@ partial class MainForm
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Label lblActive;
         private System.Windows.Forms.Label lblPause;
+        private System.Windows.Forms.CheckBox chkThreeTeams;
 
         protected override void Dispose(bool disposing)
         {
@@ -35,6 +36,7 @@ partial class MainForm
             btnStart = new System.Windows.Forms.Button();
             lblActive = new System.Windows.Forms.Label();
             lblPause = new System.Windows.Forms.Label();
+            chkThreeTeams = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)nudActiveMinutes).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudActiveSeconds).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudPauseMinutes).BeginInit();
@@ -73,9 +75,19 @@ partial class MainForm
             nudPauseSeconds.Size = new System.Drawing.Size(60, 23);
             nudPauseSeconds.TabIndex = 3;
             // 
+            // chkThreeTeams
+            // 
+            chkThreeTeams.AutoSize = true;
+            chkThreeTeams.Location = new System.Drawing.Point(30, 140);
+            chkThreeTeams.Name = "chkThreeTeams";
+            chkThreeTeams.Size = new System.Drawing.Size(120, 19);
+            chkThreeTeams.TabIndex = 7;
+            chkThreeTeams.Text = "Rullering (3 lag)";
+            chkThreeTeams.UseVisualStyleBackColor = true;
+            // 
             // btnStart
             // 
-            btnStart.Location = new System.Drawing.Point(30, 160);
+            btnStart.Location = new System.Drawing.Point(30, 170);
             btnStart.Name = "btnStart";
             btnStart.Size = new System.Drawing.Size(130, 40);
             btnStart.TabIndex = 4;
@@ -103,7 +115,7 @@ partial class MainForm
             // 
             // MainForm
             // 
-            ClientSize = new System.Drawing.Size(200, 220);
+            ClientSize = new System.Drawing.Size(200, 230);
             Controls.Add(lblPause);
             Controls.Add(lblActive);
             Controls.Add(btnStart);
@@ -111,6 +123,7 @@ partial class MainForm
             Controls.Add(nudPauseMinutes);
             Controls.Add(nudActiveSeconds);
             Controls.Add(nudActiveMinutes);
+            Controls.Add(chkThreeTeams);
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
