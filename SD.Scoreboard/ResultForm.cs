@@ -203,12 +203,12 @@ namespace SD.Scoreboard
                     lblAwayScoreDescription.Text = yellow.Name;
                     break;
                 case 1:
-                    lblHomeScoreDescription.Text = blue.Name;
+                    lblHomeScoreDescription.Text = blue.Name + " (gul knapp)";
                     lblAwayScoreDescription.Text = red.Name;
                     break;
                 case 2:
                     lblHomeScoreDescription.Text = yellow.Name;
-                    lblAwayScoreDescription.Text = blue.Name;
+                    lblAwayScoreDescription.Text = blue.Name + " (rød knapp)";
                     break;
             }
         }
@@ -377,7 +377,7 @@ namespace SD.Scoreboard
                     {
                         if (lblHomeScoreDescription.Text == "Gul") homeScore++; else awayScore++;
                     }
-                    else if (lblHomeScoreDescription.Text == "Blå") // Kamp 2: Blå vs Rød
+                    else if (lblHomeScoreDescription.Text.StartsWith("Blå")) // Kamp 2: Blå vs Rød
                     {
                         homeScore++;
                     }
@@ -395,7 +395,7 @@ namespace SD.Scoreboard
                     {
                         if (lblHomeScoreDescription.Text == "Rød") homeScore++; else awayScore++;
                     }
-                    else if (lblAwayScoreDescription.Text == "Blå") // Kamp 3: Gul vs Blå
+                    else if (lblAwayScoreDescription.Text.StartsWith("Blå")) // Kamp 3: Gul vs Blå
                     {
                         awayScore++;
                     }
@@ -415,11 +415,11 @@ namespace SD.Scoreboard
                 awayScore = 0;
             }
             // Blå-logikk for reset
-            else if (colorName == "Gul" && lblHomeScoreDescription.Text == "Blå") 
+            else if (colorName == "Gul" && lblHomeScoreDescription.Text.StartsWith("Blå")) 
             {
                 homeScore = 0; // Blå bruker "Gul"-tast (Y) i Kamp 2
             }
-            else if (colorName == "Rød" && lblAwayScoreDescription.Text == "Blå")
+            else if (colorName == "Rød" && lblAwayScoreDescription.Text.StartsWith("Blå"))
             {
                 awayScore = 0; // Blå bruker "Rød"-tast (R) i Kamp 3
             }
