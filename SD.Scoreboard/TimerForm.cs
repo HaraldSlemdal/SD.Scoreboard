@@ -1,7 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders; 
@@ -138,13 +134,14 @@ namespace SD.Scoreboard
         private void ScaleControls()
         {
             float scaleFactor = Math.Min((float)Screen.PrimaryScreen.Bounds.Width / 688f, (float)Screen.PrimaryScreen.Bounds.Height / 240f);
+            int topOffset = (int)(40 * scaleFactor); // Flytter alt litt ned
             foreach (Control c in this.Controls)
             {
                 c.Font = new System.Drawing.Font(c.Font.FontFamily, c.Font.Size * scaleFactor, c.Font.Style);
                 c.Width = (int)(c.Width * scaleFactor);
                 c.Height = (int)(c.Height * scaleFactor);
                 c.Left = (int)(c.Left * scaleFactor);
-                c.Top = (int)(c.Top * scaleFactor);
+                c.Top = (int)(c.Top * scaleFactor) + topOffset;
             }
         }
 
@@ -245,25 +242,22 @@ namespace SD.Scoreboard
 
         private void TimerForm_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode == Keys.Space)
+            {
+                TogglePause();
+            }
+            
             if (e.KeyCode == Keys.Y && !yDown)
             {
                 yDown = true;
                 yHoldTriggered = false;
                 yHoldTimer.Start();
-                if (rDown)
-                {
-                    TogglePause();
-                }
             }
             else if (e.KeyCode == Keys.R && !rDown)
             {
                 rDown = true;
                 rHoldTriggered = false;
                 rHoldTimer.Start();
-                if (yDown)
-                {
-                    TogglePause();
-                }
             }
             else if (e.KeyCode == Keys.Escape)
             {

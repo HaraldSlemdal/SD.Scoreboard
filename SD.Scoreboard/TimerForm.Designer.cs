@@ -5,6 +5,8 @@ namespace SD.Scoreboard;
 partial class TimerForm
     {
         private System.ComponentModel.IContainer components = null;
+        private System.Windows.Forms.Label lblHomeScoreDescription;
+        private System.Windows.Forms.Label lblAwayScoreDescription;
         private System.Windows.Forms.Label lblHomeScore;
         private System.Windows.Forms.Label lblAwayScore;
         private System.Windows.Forms.Label lblTime;
@@ -26,12 +28,34 @@ partial class TimerForm
         /// </summary>
         private void InitializeComponent()
         {
+            lblHomeScoreDescription = new System.Windows.Forms.Label();
+            lblAwayScoreDescription = new System.Windows.Forms.Label();
             lblHomeScore = new System.Windows.Forms.Label();
             lblAwayScore = new System.Windows.Forms.Label();
             lblTime = new System.Windows.Forms.Label();
             lblStatus = new System.Windows.Forms.Label();
             lblTotal = new System.Windows.Forms.Label();
             SuspendLayout();
+            // 
+            // lblHomeScoreDescription
+            // 
+            lblHomeScoreDescription.Font = new System.Drawing.Font("Segoe UI", 20F);
+            lblHomeScoreDescription.Location = new System.Drawing.Point(12, 0);
+            lblHomeScoreDescription.Name = "lblHomeScoreDescription";
+            lblHomeScoreDescription.Size = new System.Drawing.Size(200, 40);
+            lblHomeScoreDescription.TabIndex = 5;
+            lblHomeScoreDescription.Text = "Home";
+            lblHomeScoreDescription.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblAwayScoreDescription
+            // 
+            lblAwayScoreDescription.Font = new System.Drawing.Font("Segoe UI", 20F);
+            lblAwayScoreDescription.Location = new System.Drawing.Point(476, 0);
+            lblAwayScoreDescription.Name = "lblAwayScoreDescription";
+            lblAwayScoreDescription.Size = new System.Drawing.Size(200, 40);
+            lblAwayScoreDescription.TabIndex = 6;
+            lblAwayScoreDescription.Text = "Away";
+            lblAwayScoreDescription.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblHomeScore
             // 
@@ -86,6 +110,8 @@ partial class TimerForm
             // TimerForm
             // 
             ClientSize = new System.Drawing.Size(688, 308);
+            Controls.Add(lblAwayScoreDescription);
+            Controls.Add(lblHomeScoreDescription);
             Controls.Add(lblTotal);
             Controls.Add(lblStatus);
             Controls.Add(lblTime);
