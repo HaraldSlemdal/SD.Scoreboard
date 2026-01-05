@@ -276,8 +276,8 @@ namespace SD.Scoreboard
                     homeScore++;
                     UpdateScores();
                 }
-                CheckBothHeldReset();
             }
+            
             else if (e.KeyCode == Keys.R)
             {
                 rDown = false;
@@ -287,7 +287,6 @@ namespace SD.Scoreboard
                     awayScore++;
                     UpdateScores();
                 }
-                CheckBothHeldReset();
             }
         }
 
@@ -302,19 +301,6 @@ namespace SD.Scoreboard
             {
                 tickTimer.Start();
                 lblStatus.Text = isActivePeriod ? "Aktiv periode" : "Pause";
-            }
-        }
-
-        private void CheckBothHeldReset()
-        {
-            if (yHoldTriggered && rHoldTriggered)
-            {
-                homeScore = 0;
-                awayScore = 0;
-                isActivePeriod = true;
-                remainingSeconds = activeSeconds;
-                UpdateScores();
-                UpdateTimeLabel();
             }
         }
 
