@@ -5,10 +5,12 @@ public partial class MainForm : Form
     public MainForm()
     {
         InitializeComponent();
-        //nudActiveMinutes.Value = 3;
-        //nudPauseMinutes.Value = 2;
-        nudActiveSeconds.Value = 10;
-        nudPauseSeconds.Value = 5;
+        nudActiveMinutes.Value = 3;
+        nudPauseMinutes.Value = 2;
+        
+        //For testing purposes
+        //nudActiveSeconds.Value = 10;
+        //nudPauseSeconds.Value = 5;
         
     }
     
