@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
 using NAudio.Wave;
-using NAudio.Wave.SampleProviders; 
+using NAudio.Wave.SampleProviders;
 
 
 namespace SD.Scoreboard
@@ -75,7 +75,7 @@ namespace SD.Scoreboard
 
             var baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sounds");
             //Lyder fra https://elevenlabs.io/
-            
+
             beepSoundPath = Path.Combine(baseDir, "beep.mp3");
             whistleSoundPath = Path.Combine(baseDir, "calling-whistle.mp3");
             //getReadySoundPath = Path.Combine(baseDir, "ElevenLabs_Text_to_Speech_audio.mp3");
@@ -85,7 +85,7 @@ namespace SD.Scoreboard
 
             InitAudio();
             PreloadSounds();
-            
+
             ScaleControls();
             UpdateMatchLabels(); // Sett riktige navn med en gang
             StartActivePeriod(first: true);
@@ -97,18 +97,20 @@ namespace SD.Scoreboard
 
             yHoldTimer = new Timer();
             yHoldTimer.Interval = 1000; // 1s hold
-            yHoldTimer.Tick += (s, e) => { 
-                yHoldTriggered = true; 
-                yHoldTimer.Stop(); 
-                ResetScoreForColor("Gul"); 
+            yHoldTimer.Tick += (s, e) =>
+            {
+                yHoldTriggered = true;
+                yHoldTimer.Stop();
+                ResetScoreForColor("Gul");
             };
 
             rHoldTimer = new Timer();
             rHoldTimer.Interval = 1000; // 1s hold
-            rHoldTimer.Tick += (s, e) => { 
-                rHoldTriggered = true; 
-                rHoldTimer.Stop(); 
-                ResetScoreForColor("Rød"); 
+            rHoldTimer.Tick += (s, e) =>
+            {
+                rHoldTriggered = true;
+                rHoldTimer.Stop();
+                ResetScoreForColor("Rød");
             };
 
             this.KeyPreview = true;
@@ -120,20 +122,39 @@ namespace SD.Scoreboard
         private void InitAudio()
         {
             mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 1)) { ReadFully = true };
-            outputDevice = new WaveOutEvent { DesiredLatency = 60 }; 
+            outputDevice = new WaveOutEvent { DesiredLatency = 60 };
             outputDevice.Init(mixer);
-            outputDevice.Play(); 
+            outputDevice.Play();
         }
 
         private void PreloadSounds()
         {
             try
             {
-                if (File.Exists(beepSoundPath)) { beepSound = new CachedSound(beepSoundPath); }
-                if (File.Exists(whistleSoundPath)) { whistleSound = new CachedSound(whistleSoundPath); }
-                if (File.Exists(halfwaySoundPath)) { halfwaySound = new CachedSound(halfwaySoundPath); }
-                if (File.Exists(tenSecondsSoundPath)) { tenSecondsSound = new CachedSound(tenSecondsSoundPath); }
-                if (File.Exists(wellDoneSoundPath)) { periodOverSound = new CachedSound(wellDoneSoundPath); }
+                if (File.Exists(beepSoundPath))
+                {
+                    beepSound = new CachedSound(beepSoundPath);
+                }
+
+                if (File.Exists(whistleSoundPath))
+                {
+                    whistleSound = new CachedSound(whistleSoundPath);
+                }
+
+                if (File.Exists(halfwaySoundPath))
+                {
+                    halfwaySound = new CachedSound(halfwaySoundPath);
+                }
+
+                if (File.Exists(tenSecondsSoundPath))
+                {
+                    tenSecondsSound = new CachedSound(tenSecondsSoundPath);
+                }
+
+                if (File.Exists(wellDoneSoundPath))
+                {
+                    periodOverSound = new CachedSound(wellDoneSoundPath);
+                }
             }
             catch (Exception ex)
             {
@@ -151,13 +172,15 @@ namespace SD.Scoreboard
                 {
                     toAdd = new WdlResamplingSampleProvider(provider, mixer.WaveFormat.SampleRate);
                 }
+
                 mixer.AddMixerInput(toAdd);
             }
         }
 
         private void ScaleControls()
         {
-            float scaleFactor = Math.Min((float)Screen.PrimaryScreen.Bounds.Width / 688f, (float)Screen.PrimaryScreen.Bounds.Height / 240f);
+            float scaleFactor = Math.Min((float)Screen.PrimaryScreen.Bounds.Width / 688f,
+                (float)Screen.PrimaryScreen.Bounds.Height / 240f);
             int topOffset = (int)(20 * scaleFactor);
             foreach (Control c in this.Controls)
             {
@@ -166,24 +189,33 @@ namespace SD.Scoreboard
                 c.Height = (int)(c.Height * scaleFactor);
                 c.Left = (int)(c.Left * scaleFactor);
                 c.Top = (int)(c.Top * scaleFactor) + topOffset;
+
+                // Bruk en monospaced font for tabellen (lblTotal) for å holde kolonnene rette
+                if (c.Name == "lblTotal")
+                {
+                    c.Font = new System.Drawing.Font("Consolas", 12f * scaleFactor, System.Drawing.FontStyle.Bold);
+                    // Viktig: Venstrejuster tabellen så kolonnene ikke flytter seg
+                    ((Label)c).TextAlign = System.Drawing.ContentAlignment.TopCenter;
+                }
+
             }
         }
 
         private void StartActivePeriod(bool first = false)
         {
             PlayCached(whistleSound);
-        
+
             isActivePeriod = true;
             remainingSeconds = activeSeconds;
             lblStatus.Text = "Aktiv periode";
-            
+
             if (!first)
             {
                 UpdateStats(); // Lagre resultater fra forrige kamp
                 currentMatchIndex = (currentMatchIndex + 1) % 3; // Roter til neste kamp
                 UpdateMatchLabels();
             }
-            
+
             homeScore = 0;
             awayScore = 0;
             UpdateScores();
@@ -249,37 +281,6 @@ namespace SD.Scoreboard
             return isHome ? yellow : blue;
         }
 
-        private void UpdateTotal()
-        {
-            // Legg lagene i en liste for sortering
-            var teams = new System.Collections.Generic.List<TeamStats> { red, yellow, blue };
-
-            // Sorterer etter poeng (synkende), deretter målforskjell (synkende)
-            teams.Sort((a, b) => {
-                int res = b.Points.CompareTo(a.Points);
-                if (res == 0) res = b.GoalDiff.CompareTo(a.GoalDiff);
-                return res;
-            });
-
-            // Formatert tabell-visning
-            string format = "{0}: {1}k  {2}s-{3}u-{4}t  ({5}{6})  {7}p";
-            var lines = new System.Collections.Generic.List<string>();
-
-            foreach (var team in teams)
-            {
-                lines.Add(string.Format(format, 
-                    team.Name.PadRight(5), 
-                    team.Played, 
-                    team.Won, 
-                    team.Draw, 
-                    team.Lost, 
-                    (team.GoalDiff >= 0 ? "+" : ""), 
-                    team.GoalDiff, 
-                    team.Points));
-            }
-
-            lblTotal.Text = string.Join("\n", lines);
-        }
         private void StartPausePeriod()
         {
             isActivePeriod = false;
@@ -287,7 +288,7 @@ namespace SD.Scoreboard
             lblStatus.Text = "Pause";
             UpdateTimeLabel();
         }
-        
+
         private void TickTimer_Tick(object sender, EventArgs e)
         {
             if (remainingSeconds > 0)
@@ -336,6 +337,7 @@ namespace SD.Scoreboard
         {
             lblHomeScore.Text = homeScore.ToString();
             lblAwayScore.Text = awayScore.ToString();
+            UpdateTotal(); // Oppdaterer tabellen live ved hver scoring
         }
 
         private void ResultForm_KeyDown(object sender, KeyEventArgs e)
@@ -344,7 +346,7 @@ namespace SD.Scoreboard
             {
                 TogglePause();
             }
-        
+
             // Logikk for hvem som får mål basert på kamp-index
             if (e.KeyCode == Keys.Y && !yDown)
             {
@@ -375,12 +377,14 @@ namespace SD.Scoreboard
                     // Y gir mål til Gul (hvis de spiller) eller Blå (hvis de spiller mot Rød)
                     if (lblHomeScoreDescription.Text == "Gul" || lblAwayScoreDescription.Text == "Gul")
                     {
-                        if (lblHomeScoreDescription.Text == "Gul") homeScore++; else awayScore++;
+                        if (lblHomeScoreDescription.Text == "Gul") homeScore++;
+                        else awayScore++;
                     }
                     else if (lblHomeScoreDescription.Text.StartsWith("Blå")) // Kamp 2: Blå vs Rød
                     {
                         homeScore++;
                     }
+
                     UpdateScores();
                 }
             }
@@ -393,12 +397,14 @@ namespace SD.Scoreboard
                     // R gir mål til Rød (hvis de spiller) eller Blå (hvis de spiller mot Gul)
                     if (lblHomeScoreDescription.Text == "Rød" || lblAwayScoreDescription.Text == "Rød")
                     {
-                        if (lblHomeScoreDescription.Text == "Rød") homeScore++; else awayScore++;
+                        if (lblHomeScoreDescription.Text == "Rød") homeScore++;
+                        else awayScore++;
                     }
                     else if (lblAwayScoreDescription.Text.StartsWith("Blå")) // Kamp 3: Gul vs Blå
                     {
                         awayScore++;
                     }
+
                     UpdateScores();
                 }
             }
@@ -406,16 +412,16 @@ namespace SD.Scoreboard
 
         private void ResetScoreForColor(string colorName)
         {
-            if (lblHomeScoreDescription.Text == colorName) 
+            if (lblHomeScoreDescription.Text == colorName)
             {
                 homeScore = 0;
             }
-            else if (lblAwayScoreDescription.Text == colorName) 
+            else if (lblAwayScoreDescription.Text == colorName)
             {
                 awayScore = 0;
             }
             // Blå-logikk for reset
-            else if (colorName == "Gul" && lblHomeScoreDescription.Text.StartsWith("Blå")) 
+            else if (colorName == "Gul" && lblHomeScoreDescription.Text.StartsWith("Blå"))
             {
                 homeScore = 0; // Blå bruker "Gul"-tast (Y) i Kamp 2
             }
@@ -423,7 +429,7 @@ namespace SD.Scoreboard
             {
                 awayScore = 0; // Blå bruker "Rød"-tast (R) i Kamp 3
             }
-            
+
             UpdateScores();
         }
 
@@ -448,7 +454,8 @@ namespace SD.Scoreboard
                 string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
                 Directory.CreateDirectory(dir);
                 string file = Path.Combine(dir, DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
-                string line = DateTime.Now.ToString("HH:mm:ss") + $" - Ny aktiv periode startet - Score: Home {homeScore} - Away {awayScore}";
+                string line = DateTime.Now.ToString("HH:mm:ss") +
+                              $" - Ny aktiv periode startet - Score: Home {homeScore} - Away {awayScore}";
                 File.AppendAllText(file, line + Environment.NewLine);
             }
             catch
@@ -464,6 +471,92 @@ namespace SD.Scoreboard
 
             outputDevice?.Stop();
             outputDevice?.Dispose();
+        }
+
+        private void UpdateTotal()
+        {
+            var teams = new System.Collections.Generic.List<TeamStats> { red, yellow, blue };
+
+            // Lag en midlertidig liste for å vise live-statistikk uten å lagre den permanent ennå
+            var displayStats = teams.Select(t => new TeamStats
+            {
+                Name = t.Name,
+                Played = t.Played,
+                Won = t.Won,
+                Draw = t.Draw,
+                Lost = t.Lost,
+                GoalsFor = t.GoalsFor,
+                GoalsAgainst = t.GoalsAgainst
+            }).ToList();
+
+            // Legg til score fra pågående kamp i visningen
+
+            // Finn lagene som spiller nå (fjerner "(gul knapp)" osv. fra sjekken)
+            string homeName = lblHomeScoreDescription.Text.Split(' ')[0];
+            string awayName = lblAwayScoreDescription.Text.Split(' ')[0];
+
+            var homeLive = displayStats.FirstOrDefault(t => t.Name == homeName);
+            var awayLive = displayStats.FirstOrDefault(t => t.Name == awayName);
+
+            if (homeLive != null && awayLive != null)
+            {
+                homeLive.Played++;
+                awayLive.Played++;
+                homeLive.GoalsFor += homeScore;
+                homeLive.GoalsAgainst += awayScore;
+                awayLive.GoalsFor += awayScore;
+                awayLive.GoalsAgainst += homeScore;
+
+                if (homeScore > awayScore)
+                {
+                    homeLive.Won++;
+                    awayLive.Lost++;
+                }
+                else if (awayScore > homeScore)
+                {
+                    awayLive.Won++;
+                    homeLive.Lost++;
+                }
+                else
+                {
+                    homeLive.Draw++;
+                    awayLive.Draw++;
+                }
+            }
+
+            displayStats.Sort((a, b) =>
+            {
+                int res = b.Points.CompareTo(a.Points);
+                if (res == 0) res = b.GoalDiff.CompareTo(a.GoalDiff);
+                return res;
+            });
+
+            // Definer faste bredder for hver kolonne
+            string header = "#  Lag      S   V   U   T   Mål    +/-  P";
+            string format = "{0,-3}{1,-9}{2,3}{3,4}{4,4}{5,4}  {6,2}-{7,-2} {8,4} {9,3}";
+
+            var lines = new System.Collections.Generic.List<string> { header };
+
+            for (int i = 0; i < displayStats.Count; i++)
+            {
+                var team = displayStats[i];
+                string goalDiffStr = (team.GoalDiff > 0 ? "+" : "") + team.GoalDiff;
+
+                lines.Add(string.Format(format,
+                    (i + 1) + ".",
+                    team.Name,
+                    team.Played,
+                    team.Won,
+                    team.Draw,
+                    team.Lost,
+                    team.GoalsFor,
+                    team.GoalsAgainst,
+                    goalDiffStr,
+                    team.Points
+                ));
+            }
+
+            lblTotal.Text = string.Join("\n", lines);
         }
     }
 }
