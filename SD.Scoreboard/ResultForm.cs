@@ -86,6 +86,7 @@ namespace SD.Scoreboard
             InitAudio();
             PreloadSounds();
 
+            LoadStatsFromLog();
             ScaleControls();
             UpdateMatchLabels(); // Sett riktige navn med en gang
             StartActivePeriod(first: true);
@@ -211,6 +212,7 @@ namespace SD.Scoreboard
 
             if (!first)
             {
+                LogMatchResult();
                 UpdateStats(); // Lagre resultater fra forrige kamp
                 currentMatchIndex = (currentMatchIndex + 1) % 3; // Roter til neste kamp
                 UpdateMatchLabels();
@@ -447,24 +449,108 @@ namespace SD.Scoreboard
             }
         }
 
-        private void LogPeriodStart()
+        private void LoadStatsFromLog()
         {
             try
             {
                 string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+                string file = Path.Combine(dir, DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
+
+                if (!File.Exists(file)) return;
+
+                var lines = File.ReadAllLines(file);
+                foreach (var line in lines)
+                {
+                    if (!line.Contains("Sluttresultat:")) continue;
+
+                    // Forventet format: HH:mm:ss - Sluttresultat: HjemmeNavn HjemmeMål - BorteMål BorteNavn
+                    // Eks: 12:00:00 - Sluttresultat: Rød 3 - 2 Gul
+                    var parts = line.Split(new[] { "Sluttresultat: " }, StringSplitOptions.None);
+                    if (parts.Length < 2) continue;
+
+                    var matchData = parts[1].Split(' ');
+                    if (matchData.Length < 5) continue;
+
+                    string hName = matchData[0];
+                    int hScore = int.Parse(matchData[1]);
+                    int aScore = int.Parse(matchData[3]);
+                    string aName = matchData[4];
+
+                    UpdateStatsManually(hName, hScore, aName, aScore);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Kunne ikke lese loggfil: " + ex.Message);
+            }
+        }
+
+        private void UpdateStatsManually(string homeName, int hScore, string awayName, int aScore)
+        {
+            TeamStats home = GetTeamByName(homeName);
+            TeamStats away = GetTeamByName(awayName);
+
+            if (home == null || away == null) return;
+
+            home.Played++;
+            away.Played++;
+            home.GoalsFor += hScore;
+            home.GoalsAgainst += aScore;
+            away.GoalsFor += aScore;
+            away.GoalsAgainst += hScore;
+
+            if (hScore > aScore)
+            {
+                home.Won++;
+                away.Lost++;
+            }
+            else if (aScore > hScore)
+            {
+                away.Won++;
+                home.Lost++;
+            }
+            else
+            {
+                home.Draw++;
+                away.Draw++;
+            }
+        }
+
+        private TeamStats GetTeamByName(string name)
+        {
+            if (name == red.Name) return red;
+            if (name == yellow.Name) return yellow;
+            if (name == blue.Name) return blue;
+            return null;
+        }
+
+        private void LogMatchResult()
+        {
+            try
+            {
+                string homeName = lblHomeScoreDescription.Text.Split(' ')[0];
+                string awayName = lblAwayScoreDescription.Text.Split(' ')[0];
+
+                string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
                 Directory.CreateDirectory(dir);
                 string file = Path.Combine(dir, DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
-                string line = DateTime.Now.ToString("HH:mm:ss") +
-                              $" - Ny aktiv periode startet - Score: Home {homeScore} - Away {awayScore}";
+                    
+                string line = $"{DateTime.Now:HH:mm:ss} - Sluttresultat: {homeName} {homeScore} - {awayScore} {awayName}";
+                    
                 File.AppendAllText(file, line + Environment.NewLine);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine("Kunne ikke skrive til logg: " + ex.Message);
             }
         }
 
         private void ResultForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (!isActivePeriod)
+            {
+                LogMatchResult();
+            }
             tickTimer?.Stop();
             yHoldTimer?.Stop();
             rHoldTimer?.Stop();
