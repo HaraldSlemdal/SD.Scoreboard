@@ -7,6 +7,11 @@ public partial class MainForm : Form
         InitializeComponent();
         nudActiveMinutes.Value = 3;
         nudPauseMinutes.Value = 2;
+        
+        //For testing purposes
+        //nudActiveSeconds.Value = 10;
+        //nudPauseSeconds.Value = 5;
+        
     }
     
     private void btnStart_Click(object sender, EventArgs e)
@@ -19,10 +24,20 @@ public partial class MainForm : Form
             return;
         }
 
-        var timerForm = new TimerForm(activeSeconds, pauseSeconds);
-        timerForm.Show();
+        Form displayForm;
+        if (chkThreeTeams.Checked)
+        {
+            displayForm = new ResultForm(activeSeconds, pauseSeconds);
+        }
+        else
+        {
+            displayForm = new TimerForm(activeSeconds, pauseSeconds);
+        }
+
+        displayForm.Show();
         this.Hide();
-        timerForm.FormClosed += (s, ev) => this.Show();
+        
+        displayForm.FormClosed += (s, ev) => this.Show();
     }
 
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)

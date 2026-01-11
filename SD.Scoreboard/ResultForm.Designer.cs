@@ -2,7 +2,7 @@
 
 namespace SD.Scoreboard;
 
-partial class TimerForm
+partial class ResultForm
     {
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.Label lblHomeScoreDescription;
@@ -100,16 +100,16 @@ partial class TimerForm
             // lblTotal
             // 
             lblTotal.Font = new System.Drawing.Font("Segoe UI", 12F);
-            lblTotal.Location = new System.Drawing.Point(12, 250);
+            lblTotal.Location = new System.Drawing.Point(12, 240);
             lblTotal.Name = "lblTotal";
-            lblTotal.Size = new System.Drawing.Size(664, 40);
+            lblTotal.Size = new System.Drawing.Size(664, 100);
             lblTotal.TabIndex = 4;
-            lblTotal.Text = "0 - 0 - 0";
+            lblTotal.Text = "3 lag";
             lblTotal.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // TimerForm
+            // ResultForm
             // 
-            ClientSize = new System.Drawing.Size(688, 308);
+            ClientSize = new System.Drawing.Size(688, 350);
             Controls.Add(lblAwayScoreDescription);
             Controls.Add(lblHomeScoreDescription);
             Controls.Add(lblTotal);
@@ -120,8 +120,8 @@ partial class TimerForm
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            Text = "SD.Scoreboard";
-            FormClosing += TimerForm_FormClosing;
+            Text = "SD.Scoreboard - Resultat";
+            FormClosing += ResultForm_FormClosing;
             ResumeLayout(false);
         }
     }
