@@ -204,17 +204,27 @@ namespace SD.Scoreboard
 
         private void StartActivePeriod(bool first = false)
         {
+            StartActivePeriod(first, false);
+        }
+
+        private void StartActivePeriod(bool first, bool skip)
+        {
             PlayCached(whistleSound);
 
             isActivePeriod = true;
             remainingSeconds = activeSeconds;
             lblStatus.Text = "Aktiv periode";
 
-            if (!first)
+            if (!first && !skip)
             {
                 LogMatchResult();
                 UpdateStats(); // Lagre resultater fra forrige kamp
                 currentMatchIndex = (currentMatchIndex + 1) % 3; // Roter til neste kamp
+                UpdateMatchLabels();
+            }
+            else if (skip)
+            {
+                currentMatchIndex = (currentMatchIndex + 1) % 3; // Roter til neste kamp uten å lagre
                 UpdateMatchLabels();
             }
 
@@ -347,6 +357,10 @@ namespace SD.Scoreboard
             if (e.KeyCode == Keys.Space)
             {
                 TogglePause();
+            }
+            else if (e.KeyCode == Keys.S)
+            {
+                StartActivePeriod(first: false, skip: true);
             }
 
             // Logikk for hvem som får mål basert på kamp-index
@@ -534,9 +548,10 @@ namespace SD.Scoreboard
                 string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
                 Directory.CreateDirectory(dir);
                 string file = Path.Combine(dir, DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
-                    
-                string line = $"{DateTime.Now:HH:mm:ss} - Sluttresultat: {homeName} {homeScore} - {awayScore} {awayName}";
-                    
+
+                string line =
+                    $"{DateTime.Now:HH:mm:ss} - Sluttresultat: {homeName} {homeScore} - {awayScore} {awayName}";
+
                 File.AppendAllText(file, line + Environment.NewLine);
             }
             catch (Exception ex)
@@ -551,6 +566,7 @@ namespace SD.Scoreboard
             {
                 LogMatchResult();
             }
+
             tickTimer?.Stop();
             yHoldTimer?.Stop();
             rHoldTimer?.Stop();
