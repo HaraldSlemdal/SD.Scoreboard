@@ -44,7 +44,7 @@ partial class TimerForm
             lblHomeScoreDescription.Name = "lblHomeScoreDescription";
             lblHomeScoreDescription.Size = new System.Drawing.Size(200, 40);
             lblHomeScoreDescription.TabIndex = 5;
-            lblHomeScoreDescription.Text = "Home";
+            lblHomeScoreDescription.Text = "Gul";
             lblHomeScoreDescription.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblAwayScoreDescription
@@ -54,7 +54,7 @@ partial class TimerForm
             lblAwayScoreDescription.Name = "lblAwayScoreDescription";
             lblAwayScoreDescription.Size = new System.Drawing.Size(200, 40);
             lblAwayScoreDescription.TabIndex = 6;
-            lblAwayScoreDescription.Text = "Away";
+            lblAwayScoreDescription.Text = "Rød";
             lblAwayScoreDescription.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblHomeScore
@@ -100,11 +100,11 @@ partial class TimerForm
             // lblTotal
             // 
             lblTotal.Font = new System.Drawing.Font("Segoe UI", 12F);
-            lblTotal.Location = new System.Drawing.Point(12, 250);
+            lblTotal.Location = new System.Drawing.Point(12, 240);
             lblTotal.Name = "lblTotal";
-            lblTotal.Size = new System.Drawing.Size(664, 40);
+            lblTotal.Size = new System.Drawing.Size(664, 100);
             lblTotal.TabIndex = 4;
-            lblTotal.Text = "0 - 0 - 0";
+            lblTotal.Text = "2 lag";
             lblTotal.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // TimerForm
