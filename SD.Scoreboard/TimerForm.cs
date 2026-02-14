@@ -214,7 +214,7 @@ namespace SD.Scoreboard
             {
                 LogMatchResult();
                 UpdateStats(); // Lagre resultater fra forrige kamp
-                currentMatchIndex = (currentMatchIndex + 1) % 3; // Roter til neste kamp
+                //currentMatchIndex = (currentMatchIndex + 1) % 3; // Roter til neste kamp
                 UpdateMatchLabels();
             }
             else if (skip)
@@ -232,7 +232,14 @@ namespace SD.Scoreboard
         
         private void UpdateMatchLabels()
         {
-            
+            // Kamp 1: Rød (Home) vs Gul (Away)
+            switch (currentMatchIndex)
+            {
+                case 0:
+                    lblHomeScoreDescription.Text = red.Name;
+                    lblAwayScoreDescription.Text = yellow.Name;
+                    break;
+            }
         }
         
         private void UpdateStats()
@@ -372,7 +379,14 @@ namespace SD.Scoreboard
                 yHoldTimer.Stop();
                 if (!yHoldTriggered)
                 {
-                    homeScore++;
+                    if (lblHomeScoreDescription.Text == "Gul")
+                    {
+                        homeScore++;
+                    }
+                    else
+                    {
+                        awayScore++;
+                    }
 
                     UpdateScores();
                 }
@@ -383,7 +397,14 @@ namespace SD.Scoreboard
                 rHoldTimer.Stop();
                 if (!rHoldTriggered)
                 {
-                    awayScore++;
+                    if (lblHomeScoreDescription.Text == "Rød")
+                    {
+                        homeScore++;
+                    }
+                    else
+                    {
+                        awayScore++;
+                    }
 
                     UpdateScores();
                 }
